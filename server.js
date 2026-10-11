@@ -177,11 +177,11 @@ app.post('/api/batch/submit', auth(db), (req, res, next) => {
     const toLines = (v) => (Array.isArray(v) ? v.join('\n') : String(v == null ? '' : v));
     const contentLines = toLines(b.contentLines).split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
     const uniqueContent = [...new Set(contentLines)];
-    if (uniqueContent.length < 50) throw err(400, `短信内容需 ${queue.PRICE_PER_MSG ? 50 : 50} 条以上（去重后当前 ${uniqueContent.length} 条）`);
+    if (uniqueContent.length < 1) throw err(400, `短信内容至少 1 条（去重后当前 ${uniqueContent.length} 条）`);
 
     const parsed = parseNumbers(toLines(b.numbers));
-    if (parsed.valid < 150 || parsed.valid > 1000) {
-      throw err(400, `有效号码需在 150 ~ 1000 之间（当前有效 ${parsed.valid} 个，共 ${parsed.total} 行）`);
+    if (parsed.valid < 1 || parsed.valid > 1000) {
+      throw err(400, `有效号码需在 1 ~ 1000 之间（当前有效 ${parsed.valid} 个，共 ${parsed.total} 行）`);
     }
 
     const needReview = b.needReview !== false; // 默认开启内容审核
@@ -433,11 +433,11 @@ app.post('/api/recharges/admin', auth(db), requireAdmin, (req, res, next) => {
 app.get('/api/meta', (req, res) => {
   res.json(ok({
     price: queue.PRICE_PER_MSG,
-    min_content: 50,
-    min_numbers: 150,
+    min_content: 1,
+    min_numbers: 1,
     max_numbers: 1000,
-    min_content_note: '短信内容列表去重后至少 50 条',
-    numbers_note: '有效号码数量需在 150 ~ 1000 之间'
+    min_content_note: '短信内容至少 1 条',
+    numbers_note: '有效号码数量需在 1 ~ 1000 之间'
   }));
 });
 
