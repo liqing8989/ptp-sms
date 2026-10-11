@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PTP SMS 1.0 - 管理后台</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div id="app"></div>
+  <script src="/js/api.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/pages/userlist.js"></script>
+  <script src="/js/pages/settings.js"></script>
+  <script src="/js/pages/rechargelog.js"></script>
+  <script>
+    window.Pages = window.Pages || {};
+    // 管理员后台：只加载管理员菜单，隐藏用户端功能
+    App.bootAdmin();
+  </script>
+</body>
+</html>

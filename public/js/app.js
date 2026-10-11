@@ -285,5 +285,72 @@ window.App = (() => {
     setInterval(tickTopbar, 1000);
   }
 
-  return { esc, fmt, icon, tag, batchStatus, STATUS_TEXT, DIR_TEXT, MSG_STATUS_TEXT, TYPE_TEXT, toast, modal, confirm, renderTable, pagination, filterBar, refreshUser, user: () => user, boot };
+  // 管理员独立后台
+  async function bootAdmin() {
+    if (!localStorage.getItem('token')) { location.replace('/login'); return; }
+    try { await refreshUser(); } catch (e) { return; }
+    // 非管理员不让进
+    if (user && user.is_admin !== 1) { location.replace('/index'); return; }
+    // 管理员后台默认进 /userlist
+    if (location.pathname === '/admin') { history.replaceState({}, '', '/userlist'); }
+    renderAdmin();
+    const _u = document.getElementById('acct-user');
+    const _b = document.getElementById('acct-balance');
+    if (_u && user) _u.textContent = user.username;
+    if (_b && user) _b.textContent = fmt.money(user.balance);
+    fillAvatar();
+    window.addEventListener('popstate', renderAdmin);
+    setInterval(tickTopbar, 1000);
+  }
+
+  // 管理员后台渲染
+  function renderAdmin() {
+    const ADMIN_MENU = [
+      { path: '/userlist', label: '账户管理', icon: 'users' },
+      { path: '/rechargelog', label: '充值记录', icon: 'wallet' },
+      { path: '/settings', label: '通道设置', icon: 'channel' },
+    ];
+    if (!document.getElementById('app').children.length) {
+      document.getElementById('app').innerHTML = `
+        <aside class="sidebar">
+          <div class="logo"><svg viewBox="0 0 24 24" fill="currentColor" style="width:28px;height:28px">${ICONS.logo}</svg><span>PTP SMS 1.0</span></div>
+          <div class="sidebar-sub">管理后台</div>
+          <nav class="menu" id="sidebar-menu"></nav>
+          <div class="sidebar-foot">© PTP SMS 1.0</div>
+        </aside>
+        <main class="main">
+          <header class="topbar">
+            <div class="crumb"><span id="crumb-cur"></span></div>
+            <div class="topbar-right">
+              <span class="tb-item"><span class="lab">账号：</span><span id="acct-user">--</span></span>
+              <span class="tb-item"><span class="lab">账户余额：</span><span id="acct-balance">--</span></span>
+              <span class="tb-item"><span class="lab">账号有效期剩余：</span><span id="acct-expire">--</span></span>
+              <span class="tb-item"><span class="lab">北京时间</span><span id="bj-clock">--</span></span>
+              <span class="tb-item avatar" id="avatar-wrap"></span>
+              <span class="tb-item logout" id="btn-logout">退出登录</span>
+            </div>
+          </header>
+          <div class="content" id="content"></div>
+        </main>
+      `;
+      document.getElementById('btn-logout').onclick = () => { localStorage.removeItem('token'); location.href = '/login'; };
+    }
+    const path = location.pathname;
+    const menu = document.getElementById('sidebar-menu');
+    menu.innerHTML = ADMIN_MENU.map((m) => `<a href="${m.path}" data-path="${m.path}">${icon(m.icon)}<span>${m.label}</span></a>`).join('');
+    document.querySelectorAll('#sidebar-menu a').forEach((a) => a.classList.toggle('active', a.dataset.path === path));
+    const m = ADMIN_MENU.find((x) => x.path === path);
+    document.getElementById('crumb-cur').textContent = m ? m.label : '未知页面';
+    const content = document.getElementById('content');
+    content.innerHTML = '';
+    const page = window.Pages[path];
+    if (!page) {
+      content.innerHTML = `<div class="el-card"><div class="card-body" style="text-align:center;padding:60px">页面不存在（404）<br><a href="/userlist" style="color:#409EFF">返回账户管理</a></div></div>`;
+      return;
+    }
+    page.render(content);
+    tickTopbar();
+  }
+
+  return { esc, fmt, icon, tag, batchStatus, STATUS_TEXT, DIR_TEXT, MSG_STATUS_TEXT, TYPE_TEXT, toast, modal, confirm, renderTable, pagination, filterBar, refreshUser, user: () => user, boot, bootAdmin };
 })();
