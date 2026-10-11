@@ -12,7 +12,7 @@ const settings = require('./lib/settings');
 const twilio = require('./lib/twilio');
 const e164 = require('./lib/e164');
 
-const PORT = process.env.PORT || 8080;
+const PORT = 8080;
 const db = open();
 queue.init(db);
 
