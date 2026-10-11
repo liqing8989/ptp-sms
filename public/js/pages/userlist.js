@@ -26,7 +26,7 @@ window.Pages['/userlist'] = {
 
     async function load() {
       const search = document.getElementById('search-input').value.trim();
-      const data = await App.api(`/api/users?page=${page}&size=${size}&search=${encodeURIComponent(search)}`);
+      const data = await API.call(`/api/users?page=${page}&size=${size}&search=${encodeURIComponent(search)}`);
       total = data.total;
       renderTable(data.list);
       renderPagination();
@@ -87,17 +87,17 @@ window.Pages['/userlist'] = {
       if (action === 'recharge') {
         const amount = prompt(`给用户 ${name} 充值金额：`);
         if (!amount) return;
-        await App.api('/api/recharges/admin', 'POST', { username: name, amount: Number(amount), note: '管理员后台充值' });
+        await API.call('/api/recharges/admin', { method: 'POST', body: JSON.stringify({ username: name, amount: Number(amount), note: '管理员后台充值' }) });
         App.toast('充值成功');
         load();
       } else if (action === 'toggle') {
-        await App.api(`/api/users/${id}/toggle-block`, 'POST', {});
+        await API.call(`/api/users/${id}/toggle-block`, { method: 'POST', body: '{}' });
         App.toast('操作成功');
         load();
       } else if (action === 'reset-pwd') {
         const pwd = prompt(`重置用户 ${name} 的新密码（至少 6 位）：`);
         if (!pwd) return;
-        await App.api(`/api/users/${id}/reset-password`, 'POST', { password: pwd });
+        await API.call(`/api/users/${id}/reset-password`, { method: 'POST', body: JSON.stringify({ password: pwd }) });
         App.toast('密码已重置');
       }
     };
