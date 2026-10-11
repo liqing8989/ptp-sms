@@ -429,6 +429,47 @@ app.post('/api/recharges/admin', auth(db), requireAdmin, (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+// ---------- 用户管理（管理员） ----------
+app.get('/api/users', auth(db), requireAdmin, (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const size = Math.min(100, Math.max(1, parseInt(req.query.size, 10) || 10));
+  const search = likeEscape(req.query.search);
+  const conds = [];
+  const params = [];
+  if (search) { conds.push('username LIKE ? ESCAPE "\\"'); params.push('%' + search + '%'); }
+  const where = conds.length ? ('WHERE ' + conds.join(' AND ')) : '';
+  const total = db.prepare(`SELECT COUNT(*) c FROM users ${where}`).get(...params).c;
+  const list = db.prepare(`SELECT id,username,balance,expire_at,is_admin,is_blocked,created_at FROM users ${where}
+    ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?`).all(...params, size, (page - 1) * size);
+  res.json(ok({ total, list }));
+});
+
+app.post('/api/users/:id/toggle-block', auth(db), requireAdmin, (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!id) throw err(400, '无效的用户 ID');
+    if (id === req.user.id) throw err(400, '不能禁用自己');
+    const u = db.prepare('SELECT * FROM users WHERE id=?').get(id);
+    if (!u) throw err(400, '用户不存在');
+    const blocked = u.is_blocked === 1 ? 0 : 1;
+    db.prepare('UPDATE users SET is_blocked=? WHERE id=?').run(blocked, id);
+    res.json(ok({ id, is_blocked: blocked }));
+  } catch (e) { next(e); }
+});
+
+app.post('/api/users/:id/reset-password', auth(db), requireAdmin, (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!id) throw err(400, '无效的用户 ID');
+    const u = db.prepare('SELECT * FROM users WHERE id=?').get(id);
+    if (!u) throw err(400, '用户不存在');
+    const newPwd = String(req.body.password || '').trim();
+    if (!newPwd || newPwd.length < 6) throw err(400, '新密码至少 6 位');
+    db.prepare('UPDATE users SET password_hash=? WHERE id=?').run(hashPassword(newPwd), id);
+    res.json(ok({ id, username: u.username }));
+  } catch (e) { next(e); }
+});
+
 // ---------- 元信息 ----------
 app.get('/api/meta', (req, res) => {
   res.json(ok({

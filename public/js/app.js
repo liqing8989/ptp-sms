@@ -42,6 +42,7 @@ window.App = (() => {
     wallet: '<path d="M4 7h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 7a2 2 0 0 1 2-2h12"/><path d="M15 14h2.5"/>',
     compress: '<path d="M4 4h5v5H4z"/><path d="M15 15h5v5h-5z"/><path d="M9 15l6 6"/><path d="M15 9l6-6"/>',
     channel: '<path d="M3 7h7"/><path d="M14 7h7"/><circle cx="12" cy="7" r="2"/><path d="M3 17h7"/><path d="M14 17h7"/><circle cx="12" cy="17" r="2"/>',
+    users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
     logo: '<path d="M5 7h9a4 4 0 0 1 0 8H9l-2 4V7z" fill="currentColor" stroke="none"/>'
   };
   const icon = (name) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ''}</svg>`;
@@ -56,6 +57,7 @@ window.App = (() => {
     { path: '/messagegroup', label: '批次统计', icon: 'chart' },
     { path: '/paydetail', label: '消费明细', icon: 'card' },
     { path: '/rechargelog', label: '余额记录', icon: 'wallet' },
+    { path: '/userlist', label: '账户管理', icon: 'users', admin: true },
     { path: '/tool/compress', label: '图片压缩', icon: 'compress' },
     { path: '/settings', label: '通道设置', icon: 'channel', admin: true }
   ];
