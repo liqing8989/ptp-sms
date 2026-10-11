@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PTP SMS 1.0 - 登录</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="logo">
+        <h1>PTP SMS 1.0</h1>
+        <p>短信营销群发管理后台</p>
+      </div>
+      <div id="form-login">
+        <div class="form-item"><label>用户名</label><input class="el-input" id="login-name" placeholder="请输入用户名" autocomplete="username"></div>
+        <div class="form-item"><label>密码</label><input class="el-input" id="login-pass" type="password" placeholder="请输入密码" autocomplete="current-password"></div>
+        <button class="el-btn el-btn--primary" id="btn-login">登 录</button>
+        <div class="switch-link">还没有账号？<a id="go-reg">注册账号</a></div>
+      </div>
+      <div id="form-register" style="display:none">
+        <div class="form-item"><label>用户名（3-20 位字母/数字/下划线）</label><input class="el-input" id="reg-name" placeholder="请输入用户名" autocomplete="username"></div>
+        <div class="form-item"><label>密码（至少 6 位）</label><input class="el-input" id="reg-pass" type="password" placeholder="请输入密码" autocomplete="new-password"></div>
+        <div class="form-item"><label>确认密码</label><input class="el-input" id="reg-pass2" type="password" placeholder="请再次输入密码" autocomplete="new-password"></div>
+        <button class="el-btn el-btn--primary" id="btn-register">注 册</button>
+        <div class="switch-link">已有账号？<a id="go-login">返回登录</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="login-foot">PTP SMS 1.0 · 企业短信营销管理平台</div>
+  <script src="/js/api.js"></script>
+  <script>
+    function toast(msg, type) {
+      let wrap = document.querySelector('.toast-wrap');
+      if (!wrap) { wrap = document.createElement('div'); wrap.className = 'toast-wrap'; document.body.appendChild(wrap); }
+      const el = document.createElement('div');
+      el.className = 'toast toast--' + (type || 'success');
+      el.textContent = msg;
+      wrap.appendChild(el);
+      setTimeout(() => el.remove(), 2400);
+    }
+    async function doLogin() {
+      const username = document.getElementById('login-name').value.trim();
+      const password = document.getElementById('login-pass').value;
+      if (!username || !password) { toast('请输入用户名和密码', 'warning'); return; }
+      try {
+        const data = await API.call('/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) });
+        API.setToken(data.token);
+        toast('登录成功，欢迎回来 ' + data.user.username);
+        setTimeout(() => { location.href = '/index'; }, 400);
+      } catch (e) { toast(e.message, 'error'); }
+    }
+    async function doRegister() {
+      const username = document.getElementById('reg-name').value.trim();
+      const password = document.getElementById('reg-pass').value;
+      const password2 = document.getElementById('reg-pass2').value;
+      if (!username || !password) { toast('请填写用户名和密码', 'warning'); return; }
+      if (password !== password2) { toast('两次输入的密码不一致', 'warning'); return; }
+      try {
+        const data = await API.call('/api/auth/register', { method: 'POST', body: JSON.stringify({ username, password }) });
+        API.setToken(data.token);
+        toast('注册成功，已自动登录');
+        setTimeout(() => { location.href = '/index'; }, 400);
+      } catch (e) { toast(e.message, 'error'); }
+    }
+    document.getElementById('btn-login').onclick = doLogin;
+    document.getElementById('login-pass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
+    document.getElementById('btn-register').onclick = doRegister;
+    document.getElementById('go-reg').onclick = () => { document.getElementById('form-login').style.display = 'none'; document.getElementById('form-register').style.display = 'block'; };
+    document.getElementById('go-login').onclick = () => { document.getElementById('form-register').style.display = 'none'; document.getElementById('form-login').style.display = 'block'; };
+  </script>
+</body>
+</html>

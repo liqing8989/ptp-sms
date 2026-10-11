@@ -1,0 +1,15 @@
+{
+  "name": "lvqing-sms",
+  "version": "1.0.0",
+  "description": "PTP SMS 1.0 企业短信营销群发管理后台",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
