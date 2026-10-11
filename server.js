@@ -48,7 +48,7 @@ app.post('/api/auth/register', (req, res, next) => {
     const exists = db.prepare('SELECT id FROM users WHERE username=?').get(name);
     if (exists) throw err(400, '用户名已存在');
     const r = db.prepare('INSERT INTO users(username,password_hash,balance,expire_at,is_admin,created_at) VALUES(?,?,?,?,?,?)')
-      .run(name, hashPassword(password), 500, addDaysBJ(300), 0, bjNow());
+      .run(name, hashPassword(password), 0, addDaysBJ(300), 0, bjNow());
     const user = db.prepare('SELECT * FROM users WHERE id=?').get(Number(r.lastInsertRowid));
     const token = signToken({ uid: user.id, u: user.username, exp: Date.now() + 7 * 24 * 3600 * 1000 });
     res.json(ok({ token, user: safeUser(user) }));
