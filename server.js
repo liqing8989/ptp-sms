@@ -561,7 +561,9 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-app.get('/admin', (req, res) => {
+// 管理员后台页面都返回 admin.html
+const ADMIN_PAGES = ['/admin', '/userlist', '/rechargelog', '/settings'];
+app.get(ADMIN_PAGES, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
