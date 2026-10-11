@@ -1,10 +1,12 @@
 // 账户管理页面（管理员）
 window.Pages = window.Pages || {};
-window.Pages['/userlist'] = (() => {
-  const { esc, fmt } = App.use();
+window.Pages['/userlist'] = {
+  title: '账户管理',
+  render: function (container) {
+    const esc = App.esc;
+    const fmt = App.fmt;
 
-  function render(root, ctx) {
-    root.innerHTML = `
+    container.innerHTML = `
       <div class="page-card">
         <div class="page-header">
           <h2>账户管理</h2>
@@ -109,6 +111,4 @@ window.Pages['/userlist'] = (() => {
 
     load();
   }
-
-  return { render };
-})();
+};
